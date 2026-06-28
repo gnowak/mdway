@@ -1,0 +1,77 @@
+/* ── MTG Decklist Cards ── */
+.mtg-deck-bd {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mtg-cat-hd {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+.mtg-cat-hd:first-child {
+  margin-top: 0;
+}
+
+.mtg-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mtg-card-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  user-select: none;
+}
+
+.mtg-card-item:hover {
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.mtg-qty {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 8px;
+  min-width: 22px;
+}
+
+.mtg-name {
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── MTG Card Hover Preview ── */
+#mtg-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100000;
+  display: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#mtg-preview.active {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
