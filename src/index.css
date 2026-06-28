@@ -24,6 +24,9 @@ html, body {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: var(--text);
   font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* ── Titlebar ── */
@@ -133,6 +136,8 @@ html, body {
   position: absolute;
   width: 0;
   height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 #hint {
@@ -173,6 +178,8 @@ html, body {
   min-width: 180px;
   min-height: 60px;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 .card:hover {
