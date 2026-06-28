@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MDway (Web)</title>
+
+<!-- Stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../src/index.css">
+
+<!-- Load libraries from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
+<script>
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose',
+      fontFamily: "'Cascadia Code','Consolas',monospace",
+      themeVariables: {
+        darkMode: true,
+        background: '#1a1a21',
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#e2e0ee',
+        primaryBorderColor: '#22222c',
+        lineColor: '#c084fc',
+        secondaryColor: '#131317',
+        tertiaryColor: '#22222c'
+      }
+    });
+  }
+</script>
+
+<!-- Import Map for ESM Dependency Injection -->
+<script type="importmap">
+{
+  "imports": {
+    "ipc": "./ipc.js",
+    "canvas": "../src/canvas.js",
+    "card": "../src/card.js",
+    "extension-manager": "../src/extension-manager.js"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="titlebar" style="-webkit-app-region: no-drag; padding-right: 12px;">
+  <span id="app-name">mdway</span>
+  <button class="tbtn tbtn-icon" id="btn-open" title="Open Canvas (Ctrl+O)">📂</button>
+  <button class="tbtn tbtn-icon" id="btn-save" title="Save Canvas (Ctrl+S)">💾</button>
+  <button class="tbtn" id="btn-clear">clear all</button>
+  <button class="tbtn tbtn-icon" id="btn-settings" title="Settings">&#9881;</button>
+  <button class="tbtn tbtn-icon" id="btn-help" title="Hotkey Legend">?</button>
+</div>
+
+<div id="viewport" style="top: 38px;">
+  <div id="canvas"></div>
+</div>
+
+<!-- Placeholder hint banner on empty canvas -->
+<div id="hint">Ctrl+V &mdash; paste code/link &nbsp;&middot;&nbsp; Alt+Drag Header &mdash; connect &nbsp;&middot;&nbsp; click ? for full guide</div>
+
+<!-- Settings modal -->
+<div id="settings-overlay">
+  <div id="settings-box">
+    <div class="sbox-head">
+      <h2>Settings</h2>
+      <button class="sbox-close" id="sbox-close-btn">&#x2715;</button>
+    </div>
+    <div class="sbox-body">
+      <!-- File Operations -->
+      <div class="sbox-section">
+        <div class="sbox-label">File Operations</div>
+        <div class="sbox-row">
+          <span>Open layout file</span>
+          <button class="sbox-btn" id="sbox-open-btn" style="min-width: 95px;">📂 Open...</button>
+        </div>
+        <div class="sbox-row">
+          <span>Save layout file</span>
+          <button class="sbox-btn primary" id="sbox-save-btn-file" style="min-width: 95px;">💾 Save...</button>
+        </div>
+      </div>
+      <!-- Scroll Modifiers -->
+      <div class="sbox-section">
+        <div class="sbox-label">Scroll Modifiers</div>
+        <div class="sbox-row">
+          <span>Zoom</span>
+          <select class="sbox-select" id="hk-zoom">
+            <option value="Shift">Shift</option>
+            <option value="Ctrl">Ctrl</option>
+            <option value="Alt">Alt</option>
+            <option value="None">None (plain scroll)</option>
+          </select>
+        </div>
+        <div class="sbox-row">
+          <span>Horizontal pan</span>
+          <select class="sbox-select" id="hk-hpan">
+            <option value="Ctrl">Ctrl</option>
+            <option value="Shift">Shift</option>
+            <option value="Alt">Alt</option>
+            <option value="None">None</option>
+          </select>
+        </div>
+      </div>
+      <!-- Canvas Shortcuts -->
+      <div class="sbox-section">
+        <div class="sbox-label">Canvas Shortcuts</div>
+        <div class="sbox-row">
+          <span>Return home (reset view)</span>
+          <select class="sbox-select" id="hk-home">
+            <option value="Space">Space</option>
+            <option value="KeyH">H</option>
+            <option value="Backquote">` (backtick)</option>
+            <option value="Escape">Escape</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="sbox-foot">
+      <button class="sbox-btn" id="sbox-reset-btn">Reset defaults</button>
+      <button class="sbox-btn primary" id="sbox-save-btn">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help/Legend modal -->
+<div id="help-overlay">
+  <div id="help-box">
+    <div class="sbox-head">
+      <h2>Canvas Guide & Legend</h2>
+      <button class="sbox-close" id="help-close-btn">&#x2715;</button>
+    </div>
+    <div class="sbox-body" style="line-height: 1.6; font-size: 11px; color: var(--text);">
+      <div class="sbox-section" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">
+        <div class="sbox-label">Sticky Notes</div>
+        <div style="margin-bottom: 6px;"><strong>Double-Click Body:</strong> Edit note text. Click checkmark (or double-click outside) to save.</div>
+        <div style="margin-bottom: 6px;"><strong>Drag Border / Corner:</strong> Resize note (hold <strong>Shift</strong> to lock aspect ratio, hold <strong>Alt</strong> to scale from center).</div>
+        <div style="margin-bottom: 6px;"><strong>Paste (Ctrl+V):</strong> Drop a new card (pasting a web URL auto-scrapes metadata, pasting an MTG deck list pulls cards automatically!).</div>
+      </div>
+      <div class="sbox-section">
+        <div class="sbox-label">Canvas Navigation</div>
+        <div style="margin-bottom: 6px;"><strong>Left-Click Drag Background:</strong> Pan the infinite board.</div>
+        <div style="margin-bottom: 6px;"><strong>Mouse Scroll:</strong> Scroll board (customizable: hold <strong>Shift</strong> to zoom, hold <strong>Ctrl</strong> to scroll horizontally).</div>
+        <div style="margin-bottom: 6px;"><strong>Space / Escape:</strong> Reset view to origin (0, 0) at zoom level 1.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load renderer coordinator module -->
+<script type="module" src="renderer.js"></script>
+</body>
+</html>

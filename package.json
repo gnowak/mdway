@@ -2,9 +2,10 @@
   "name": "mdway",
   "version": "1.0.0",
   "description": "Infinite sticky-note canvas with syntax highlighting",
-  "main": "main.js",
+  "main": "standalone/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "start:web": "npx -y http-server -p 8080"
   },
   "dependencies": {
     "electron": "^30.5.1",
