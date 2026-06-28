@@ -30,6 +30,32 @@ function detectLang(t) {
   }
 }
 
+function translateManaSymbols(html) {
+  const placeholders = [];
+  // Protect pre blocks
+  let tempHtml = html.replace(/<pre[\s\S]*?<\/pre>/gi, (match) => {
+    placeholders.push(match);
+    return `__PRE_BLOCK_PLACEHOLDER_${placeholders.length - 1}__`;
+  });
+
+  // Protect inline code blocks
+  tempHtml = tempHtml.replace(/<code[\s\S]*?<\/code>/gi, (match) => {
+    placeholders.push(match);
+    return `__PRE_BLOCK_PLACEHOLDER_${placeholders.length - 1}__`;
+  });
+
+  // Replace MTG mana symbols with Scryfall SVG links
+  tempHtml = tempHtml.replace(/\{([A-Za-z0-9/∞½]+)\}/g, (m, g) => {
+    const symbol = g.replace(/\//g, '').toUpperCase();
+    return `<img src="https://svgs.scryfall.io/card-symbols/${symbol}.svg" class="mtg-mana-symbol" alt="${g}" style="height: 0.9em; width: 0.9em; vertical-align: middle; margin: 0 1px; display: inline-block;">`;
+  });
+
+  // Restore protected blocks
+  return tempHtml.replace(/__PRE_BLOCK_PLACEHOLDER_(\d+)__/g, (m, id) => {
+    return placeholders[parseInt(id, 10)];
+  });
+}
+
 function renderMarkdown(text) {
   let html = marked.parse(text);
   html = html.replace(
@@ -52,6 +78,7 @@ function renderMarkdown(text) {
       }
     }
   );
+  html = translateManaSymbols(html);
   return '<div class="mdv">' + html + '</div>';
 }
 

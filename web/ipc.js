@@ -141,6 +141,28 @@ export const ipc = {
             return '<pre><code class="hljs">' + esc(raw) + '</code></pre>';
           }
         );
+
+        // Protect code/pre blocks and replace MTG symbols with Scryfall SVG links
+        const translateManaSymbols = (htmlStr) => {
+          const placeholders = [];
+          let temp = htmlStr.replace(/<pre[\s\S]*?<\/pre>/gi, (m) => {
+            placeholders.push(m);
+            return `__PRE_BLOCK_PLACEHOLDER_${placeholders.length - 1}__`;
+          });
+          temp = temp.replace(/<code[\s\S]*?<\/code>/gi, (m) => {
+            placeholders.push(m);
+            return `__PRE_BLOCK_PLACEHOLDER_${placeholders.length - 1}__`;
+          });
+          temp = temp.replace(/\{([A-Za-z0-9/∞½]+)\}/g, (m, g) => {
+            const symbol = g.replace(/\//g, '').toUpperCase();
+            return `<img src="https://svgs.scryfall.io/card-symbols/${symbol}.svg" class="mtg-mana-symbol" alt="${g}" style="height: 0.9em; width: 0.9em; vertical-align: middle; margin: 0 1px; display: inline-block;">`;
+          });
+          return temp.replace(/__PRE_BLOCK_PLACEHOLDER_(\d+)__/g, (m, id) => {
+            return placeholders[parseInt(id, 10)];
+          });
+        };
+
+        html = translateManaSymbols(html);
         return '<div class="mdv">' + html + '</div>';
       } catch (e) {
         console.error('Markdown render error', e);

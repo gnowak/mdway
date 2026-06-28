@@ -115,8 +115,8 @@ function makeCardDOM(card) {
   }
   if (card.h) el.style.height = card.h + 'px';
 
-  // Toggle markdown buttons are shown for Markdown and custom extension renderer types
-  const isToggleable = (card.lang === 'markdown' || extensionManager.hasRenderer(card.lang));
+  // Toggle markdown buttons are shown for Markdown and SVG types where viewing/editing raw source is typical
+  const isToggleable = (card.lang === 'markdown' || card.lang === 'svg');
   const mdBtn = isToggleable
     ? `<button class="cbtn md-btn ${card.showMd ? 'on' : ''}" title="Toggle View Mode" aria-label="Toggle View Mode" aria-pressed="${card.showMd}">&lang;/&rang;</button>`
     : '';
