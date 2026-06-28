@@ -14,7 +14,7 @@
     "start": "electron .",
     "start:web": "npx -y http-server web -p 8080",
     "test": "vitest run",
-    "build:web": "powershell -ExecutionPolicy Bypass -Command \"Remove-Item -Recurse -Force web/src, web/extensions -ErrorAction SilentlyContinue; Copy-Item -Recurse src web/src; Copy-Item -Recurse extensions web/extensions; Write-Host 'Web build compiled successfully!'\"",
+    "build:web": "node build-web.js",
     "dist": "electron-builder",
     "dist:installer": "electron-builder --config.win.target=nsis",
     "dist:portable": "electron-builder --config.win.target=portable",
