@@ -179,6 +179,7 @@ function renderMtgDeckBody(deckData) {
 // ── Extension Definition ──
 
 export const MtgExtension = {
+  name: 'Magic: The Gathering',
   onInit(manager) {
     // 1. Register language styles
     manager.registerLanguage({

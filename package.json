@@ -1,16 +1,72 @@
 {
   "name": "mdway",
   "version": "1.0.0",
-  "description": "Infinite sticky-note canvas with syntax highlighting",
+  "description": "Infinite sticky-note canvas with Markdown, syntax highlighting, SVG, color tools, and extension support",
+  "author": "Geoff Nowak",
+  "homepage": "https://github.com/gnowak/mdway",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnowak/mdway.git"
+  },
+  "license": "MIT",
   "main": "standalone/main.js",
   "scripts": {
     "start": "electron .",
-    "start:web": "npx -y http-server -p 8080"
+    "start:web": "npx -y http-server web -p 8080",
+    "test": "vitest run",
+    "dist": "electron-builder",
+    "dist:installer": "electron-builder --config.win.target=nsis",
+    "dist:portable": "electron-builder --config.win.target=portable",
+    "dist:zip": "electron-builder --config.win.target=zip"
   },
   "dependencies": {
-    "electron": "^30.5.1",
     "highlight.js": "^11.9.0",
     "marked": "^12.0.0",
     "mermaid": "^11.16.0"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^26.15.3",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.9"
+  },
+  "build": {
+    "appId": "com.mdway.app",
+    "productName": "MDway",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "package.json",
+      "standalone/**/*",
+      "src/**/*",
+      "extensions/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable",
+        "zip"
+      ],
+      "icon": "standalone/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MDway"
+    },
+    "portable": {
+      "artifactName": "MDway-${version}-portable.exe"
+    },
+    "fileAssociations": [
+      {
+        "ext": "mdway",
+        "name": "MDway Canvas File",
+        "role": "Editor",
+        "icon": "standalone/icon.png"
+      }
+    ]
   }
 }

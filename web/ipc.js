@@ -77,6 +77,12 @@ export const ipc = {
       return { success: false, error: e.message };
     }
   },
+  getLaunchFile: async () => {
+    return null;
+  },
+  onOpenLaunchFile: (callback) => {
+    return () => {};
+  },
   fetchLinkMetadata: async (url) => {
     console.log('[Web] Fetching metadata for', url);
     return {
@@ -169,5 +175,13 @@ export const ipc = {
   },
   escapeHtml: (text) => {
     return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  },
+  openFolder: async () => {
+    console.log('[Web] openFolder is not supported in the browser.');
+    return null;
+  },
+  openExternal: async (url) => {
+    window.open(url, '_blank');
+    return true;
   }
 };

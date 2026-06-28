@@ -78,6 +78,14 @@ contextBridge.exposeInMainWorld('api', {
   saveCanvas: (data) => ipcRenderer.invoke('file-save', data),
   loadCanvas: () => ipcRenderer.invoke('file-load'),
   exportFile: (content, defaultFilename, filters) => ipcRenderer.invoke('file-export', { content, defaultFilename, filters }),
+  getLaunchFile: () => ipcRenderer.invoke('get-launch-file'),
+  onOpenLaunchFile: (callback) => {
+    const subscription = (_, data) => callback(data);
+    ipcRenderer.on('open-launch-file', subscription);
+    return () => {
+      ipcRenderer.removeListener('open-launch-file', subscription);
+    };
+  },
 
   // URL Scraper metadata fetcher
   fetchLinkMetadata: (url) => ipcRenderer.invoke('fetch-url-metadata', url),
@@ -88,5 +96,11 @@ contextBridge.exposeInMainWorld('api', {
   // Markdown rendering & Syntax highlighting functions
   renderCardBody: (text, lang, showMd) => renderBody(text, lang, showMd),
   detectLanguage: (text) => detectLang(text),
-  escapeHtml: (text) => esc(text)
+  escapeHtml: (text) => esc(text),
+
+  // Open a folder path in the OS file explorer
+  openFolder: (folderPath) => ipcRenderer.invoke('open-folder', folderPath),
+
+  // Open a URL in the OS default web browser
+  openExternal: (url) => ipcRenderer.invoke('open-external', url)
 });

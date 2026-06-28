@@ -48,12 +48,31 @@
 <body>
 
 <div id="titlebar" style="-webkit-app-region: no-drag; padding-right: 12px;">
-  <span id="app-name">mdway</span>
-  <button class="tbtn tbtn-icon" id="btn-open" title="Open Canvas (Ctrl+O)">📂</button>
-  <button class="tbtn tbtn-icon" id="btn-save" title="Save Canvas (Ctrl+S)">💾</button>
-  <button class="tbtn" id="btn-clear">clear all</button>
-  <button class="tbtn tbtn-icon" id="btn-settings" title="Settings">&#9881;</button>
-  <button class="tbtn tbtn-icon" id="btn-help" title="Hotkey Legend">?</button>
+  <span id="app-name">
+    <span id="app-logo-wrap">
+      <img id="app-logo" src="./icon.png" alt="MDway icon" draggable="false">
+    </span>
+    mdway
+  </span>
+  
+  <div class="tgroup">
+    <button class="tbtn tbtn-icon" id="btn-open" title="Open Canvas (Ctrl+O)" aria-label="Open Canvas layout file">📂</button>
+    <button class="tbtn tbtn-icon" id="btn-save" title="Save Canvas (Ctrl+S)" aria-label="Save Canvas layout file">💾</button>
+  </div>
+  
+  <div class="tgroup">
+    <button class="tbtn tbtn-icon disabled" id="btn-undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+    <button class="tbtn tbtn-icon disabled" id="btn-redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+  </div>
+  
+  <div class="tgroup">
+    <button class="tbtn" id="btn-chainsaw" aria-label="Toggle Chainsaw Deletion Mode" title="Chainsaw Mode (Destructive Deletion)">&#x1F99A; chainsaw</button>
+  </div>
+  
+  <div class="tgroup">
+    <button class="tbtn tbtn-icon" id="btn-settings" title="Settings" aria-label="Settings">&#9881;</button>
+    <button class="tbtn tbtn-icon" id="btn-help" title="Hotkey Legend" aria-label="Hotkey Legend and Canvas Guide">?</button>
+  </div>
 </div>
 
 <div id="viewport" style="top: 38px;">
@@ -61,14 +80,14 @@
 </div>
 
 <!-- Placeholder hint banner on empty canvas -->
-<div id="hint">Ctrl+V &mdash; paste code/link &nbsp;&middot;&nbsp; Alt+Drag Header &mdash; connect &nbsp;&middot;&nbsp; click ? for full guide</div>
+<div id="hint">Ctrl+V &mdash; paste code/link &nbsp;&middot;&nbsp; Double-click card body to edit &nbsp;&middot;&nbsp; click ? for full guide</div>
 
 <!-- Settings modal -->
-<div id="settings-overlay">
+<div id="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
   <div id="settings-box">
     <div class="sbox-head">
-      <h2>Settings</h2>
-      <button class="sbox-close" id="sbox-close-btn">&#x2715;</button>
+      <h2 id="settings-title">Settings</h2>
+      <button class="sbox-close" id="sbox-close-btn" aria-label="Close Settings">&#x2715;</button>
     </div>
     <div class="sbox-body">
       <!-- File Operations -->
@@ -118,20 +137,161 @@
           </select>
         </div>
       </div>
+      <!-- App Appearance -->
+      <div class="sbox-section">
+        <div class="sbox-label">App Appearance</div>
+        <div class="sbox-row">
+          <span>Theme</span>
+          <select class="sbox-select" id="opt-theme">
+            <option value="blue-jays">Blue Jays (Default)</option>
+            <option value="dark-purple">Dark Purple</option>
+            <option value="pastel">Soft Pastel</option>
+            <option value="mono">Minimalist B&W</option>
+          </select>
+        </div>
+        <div class="sbox-row">
+          <span>Font Style</span>
+          <select class="sbox-select" id="opt-font">
+            <option value="sans">Sans-Serif</option>
+            <option value="mono">Monospace</option>
+            <option value="serif">Serif</option>
+          </select>
+        </div>
+        <div class="sbox-row">
+          <span>Skip Chainsaw Warning</span>
+          <select class="sbox-select" id="opt-chainsaw-warn">
+            <option value="false">No (Warn me)</option>
+            <option value="true">Yes (Skip warn)</option>
+          </select>
+        </div>
+        <div class="sbox-row">
+          <span>Welcome Guide</span>
+          <button class="sbox-btn" id="sbox-welcome-btn" style="padding: 4px 10px; font-size: 11px; margin: 0; width: 140px;">Spawn Welcome Card</button>
+        </div>
+      </div>
+      <!-- Developer (hidden in web build - no filesystem access) -->
+      <div class="sbox-section" id="sbox-dev-section" style="display:none;">
+        <div class="sbox-label">Developer</div>
+        <div class="sbox-row">
+          <span>Extensions Folder</span>
+          <button class="sbox-btn" id="sbox-open-ext-btn" style="padding: 4px 10px; font-size: 11px; margin: 0; width: 140px;">Open in Explorer</button>
+        </div>
+      </div>
+      <!-- Extensions -->
+      <div class="sbox-section">
+        <div class="sbox-label">Extensions</div>
+        <div class="sbox-checkbox-list" id="sbox-extensions-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+      <!-- Supported Card Types -->
+      <div class="sbox-section">
+        <div class="sbox-label">Supported Card Types</div>
+        <div class="card-types-grid">
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Markdown</span>
+              <span class="card-type-badge" style="background: var(--accent); color: #fff;">MD</span>
+            </div>
+            <span class="card-type-desc">Rich text formatting & Mermaid UML</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Javascript</span>
+              <span class="card-type-badge" style="background: #f7df1e; color: #000;">JS</span>
+            </div>
+            <span class="card-type-desc">Syntax highlighted code card</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Python</span>
+              <span class="card-type-badge" style="background: #3776ab; color: #fff;">PY</span>
+            </div>
+            <span class="card-type-desc">Syntax highlighted Python script</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">SVG Graphic</span>
+              <span class="card-type-badge" style="background: #f15a24; color: #fff;">SVG</span>
+            </div>
+            <span class="card-type-desc">Visual vector graphic card</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Color Swatch</span>
+              <span class="card-type-badge" style="background: #10b981; color: #fff;">CLR</span>
+            </div>
+            <span class="card-type-desc">Interactive swatch & color picker</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Color Palette</span>
+              <span class="card-type-badge" style="background: #059669; color: #fff;">PAL</span>
+            </div>
+            <span class="card-type-desc">Multi-colour palette grid &amp; picker</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">MTG Deck</span>
+              <span class="card-type-badge" style="background: #7c3aed; color: #fff;">MTG</span>
+            </div>
+            <span class="card-type-desc">Magic deck list with Scryfall art</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Link Preview</span>
+              <span class="card-type-badge" style="background: #0ea5e9; color: #fff;">LINK</span>
+            </div>
+            <span class="card-type-desc">URL-scraped page preview card</span>
+          </div>
+          <div class="card-type-item">
+            <div class="card-type-header">
+              <span class="card-type-name">Text</span>
+              <span class="card-type-badge" style="background: var(--muted); color: #fff;">TXT</span>
+            </div>
+            <span class="card-type-desc">Plain text scratchpad card</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="sbox-foot">
+      <button class="sbox-btn danger" id="sbox-clear-btn">Clear Canvas</button>
       <button class="sbox-btn" id="sbox-reset-btn">Reset defaults</button>
       <button class="sbox-btn primary" id="sbox-save-btn">Save Settings</button>
     </div>
   </div>
 </div>
 
+<!-- Chainsaw warning modal -->
+<div id="chainsaw-overlay" role="dialog" aria-modal="true" aria-labelledby="chainsaw-title">
+  <div id="chainsaw-box">
+    <div class="sbox-head" style="border-bottom: none;">
+      <h2 id="chainsaw-title" style="color: #dc2626; font-size: 14px;">🪚 Enable Chainsaw Mode?</h2>
+    </div>
+    <div class="sbox-body" style="padding-top: 0; line-height: 1.5; font-size: 11px; color: var(--text);">
+      <p style="margin-bottom: 8px;"><strong>Warning:</strong> Chainsaw Mode enables destructive click-to-delete on cards.</p>
+      <p style="margin-bottom: 12px; color: var(--muted);">Clicking any card will delete it immediately from the canvas without further prompts.</p>
+      <div class="sbox-row" style="border-top: 1px solid var(--border); padding-top: 10px;">
+        <span>Don't show this warning again</span>
+        <select class="sbox-select" id="chainsaw-warn-skip" style="width: 100px;">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+    </div>
+    <div class="sbox-foot" style="border-top: none; padding-top: 0;">
+      <button class="sbox-btn" id="chainsaw-cancel-btn">Cancel</button>
+      <button class="sbox-btn danger" id="chainsaw-confirm-btn">Enable Mode</button>
+    </div>
+  </div>
+</div>
+
 <!-- Help/Legend modal -->
-<div id="help-overlay">
+<div id="help-overlay" role="dialog" aria-modal="true" aria-labelledby="help-title">
   <div id="help-box">
     <div class="sbox-head">
-      <h2>Canvas Guide & Legend</h2>
-      <button class="sbox-close" id="help-close-btn">&#x2715;</button>
+      <h2 id="help-title">Canvas Guide & Legend</h2>
+      <button class="sbox-close" id="help-close-btn" aria-label="Close Help">&#x2715;</button>
     </div>
     <div class="sbox-body" style="line-height: 1.6; font-size: 11px; color: var(--text);">
       <div class="sbox-section" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">

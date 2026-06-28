@@ -19,6 +19,12 @@ export const ipc = {
   exportFile: async (content, defaultFilename, filters) => {
     return await window.api.exportFile(content, defaultFilename, filters);
   },
+  getLaunchFile: async () => {
+    return await window.api.getLaunchFile();
+  },
+  onOpenLaunchFile: (callback) => {
+    return window.api.onOpenLaunchFile(callback);
+  },
   fetchLinkMetadata: async (url) => {
     return await window.api.fetchLinkMetadata(url);
   },
@@ -33,5 +39,11 @@ export const ipc = {
   },
   escapeHtml: (text) => {
     return window.api.escapeHtml(text);
+  },
+  openFolder: async (folderPath) => {
+    return await window.api.openFolder(folderPath);
+  },
+  openExternal: async (url) => {
+    return await window.api.openExternal(url);
   }
 };

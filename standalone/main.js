@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -6,40 +6,94 @@ const http = require('http');
 const { URL } = require('url');
 
 let win;
+let launchFileContent = null;
 
-app.whenReady().then(() => {
-  win = new BrowserWindow({
-    width: 600,
-    height: 720,
-    minWidth: 320,
-    minHeight: 240,
-    frame: false,
-    backgroundColor: '#0d0d10',
-    alwaysOnTop: true,
-    resizable: true,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false,
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-  
-  // Load the standalone index.html located in the same directory
-  win.loadFile(path.join(__dirname, 'index.html'));
+function getFilePathFromArgs(argv = process.argv) {
+  const args = argv.slice(app.isPackaged ? 1 : 2);
+  for (const arg of args) {
+    if (arg.startsWith('-')) continue;
+    try {
+      if (fs.existsSync(arg) && fs.statSync(arg).isFile()) {
+        if (arg.endsWith('.mdway') || arg.endsWith('.json')) {
+          return arg;
+        }
+      }
+    } catch (e) {}
+  }
+  return null;
+}
 
-  // Ctrl+Shift+I → detached DevTools for debugging
-  win.webContents.on('before-input-event', (e, input) => {
-    if (input.type === 'keyDown' && input.control && input.shift && input.key.toLowerCase() === 'i') {
-      e.preventDefault();
-      if (win.webContents.isDevToolsOpened()) {
-        win.webContents.closeDevTools();
-      } else {
-        win.webContents.openDevTools({ mode: 'detach' });
+function readCanvasFile(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(content);
+    return { success: true, data, filePath: path.basename(filePath) };
+  } catch (err) {
+    return { success: false, error: 'Could not load canvas file: ' + err.message };
+  }
+}
+
+// Single Instance Lock
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine) => {
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+      
+      const filePath = getFilePathFromArgs(commandLine);
+      if (filePath) {
+        const fileData = readCanvasFile(filePath);
+        if (fileData && fileData.success) {
+          win.webContents.send('open-launch-file', fileData);
+        }
       }
     }
   });
-});
+
+  app.whenReady().then(() => {
+    // Check if launched with a file
+    const filePath = getFilePathFromArgs();
+    if (filePath) {
+      launchFileContent = readCanvasFile(filePath);
+    }
+
+    win = new BrowserWindow({
+      width: 600,
+      height: 720,
+      minWidth: 320,
+      minHeight: 240,
+      frame: false,
+      backgroundColor: '#0d0d10',
+      alwaysOnTop: true,
+      resizable: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: false,
+        preload: path.join(__dirname, 'preload.js'),
+        webviewTag: true
+      },
+    });
+    
+    // Load the standalone index.html located in the same directory
+    win.loadFile(path.join(__dirname, 'index.html'));
+
+    // Ctrl+Shift+I → detached DevTools for debugging
+    win.webContents.on('before-input-event', (e, input) => {
+      if (input.type === 'keyDown' && input.control && input.shift && input.key.toLowerCase() === 'i') {
+        e.preventDefault();
+        if (win.webContents.isDevToolsOpened()) {
+          win.webContents.closeDevTools();
+        } else {
+          win.webContents.openDevTools({ mode: 'detach' });
+        }
+      }
+    });
+  });
+}
 
 app.on('window-all-closed', () => app.quit());
 
@@ -47,6 +101,23 @@ app.on('window-all-closed', () => app.quit());
 ipcMain.on('window-close', () => win.close());
 ipcMain.on('window-minimize', () => win.minimize());
 ipcMain.on('window-pin', (_, isPinned) => win.setAlwaysOnTop(isPinned, 'screen-saver'));
+
+// --- Open folder in OS file explorer ---
+ipcMain.handle('open-folder', (_, folderPath) => {
+  shell.openPath(folderPath);
+});
+
+// --- Open URL in OS default web browser ---
+ipcMain.handle('open-external', (_, url) => {
+  shell.openExternal(url);
+});
+
+// --- File launch handlers ---
+ipcMain.handle('get-launch-file', () => {
+  const res = launchFileContent;
+  launchFileContent = null;
+  return res;
+});
 
 // --- File dialog operations ---
 ipcMain.handle('file-save', async (_, data) => {
@@ -150,26 +221,37 @@ ipcMain.handle('ollama-query', async (_, { model, prompt }) => {
   });
 });
 
-// Native implementation of a metadata scraper to avoid external package overhead
-function fetchUrlMetadata(targetUrl) {
+function fetchUrlMetadata(targetUrl, redirectDepth = 0) {
   return new Promise((resolve) => {
+    if (redirectDepth > 5) {
+      resolve({ success: false, error: 'Too many redirects', url: targetUrl });
+      return;
+    }
     try {
       if (!/^https?:\/\//i.test(targetUrl)) {
         targetUrl = 'https://' + targetUrl;
       }
       const parsedUrl = new URL(targetUrl);
-      const client = parsedUrl.protocol === 'https:' ? https : http;
+      const isHttps = parsedUrl.protocol === 'https:';
+      const client = isHttps ? https : http;
 
-      const req = client.get(targetUrl, {
+      const reqOptions = {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9'
         }
-      }, (res) => {
-        // Handle redirects (e.g. 301, 302)
+      };
+      if (isHttps) {
+        reqOptions.rejectUnauthorized = false;
+      }
+
+      const req = client.get(targetUrl, reqOptions, (res) => {
+        // Handle redirects (e.g. 301, 302, 307, 308)
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          res.resume(); // drain the response so the socket can be reused
           const nextUrl = new URL(res.headers.location, targetUrl).href;
-          resolve(fetchUrlMetadata(nextUrl));
+          resolve(fetchUrlMetadata(nextUrl, redirectDepth + 1));
           return;
         }
 
@@ -177,7 +259,7 @@ function fetchUrlMetadata(targetUrl) {
         res.setEncoding('utf-8');
         res.on('data', (chunk) => {
           html += chunk;
-          // Stop downloading if we have read past typical head tags (64KB max)
+          // Stop downloading after 64KB — enough for all <head> tags
           if (html.length > 65536) {
             req.destroy();
           }
@@ -192,7 +274,7 @@ function fetchUrlMetadata(targetUrl) {
         resolve({ success: false, error: err.message, url: targetUrl });
       });
 
-      req.setTimeout(4000, () => {
+      req.setTimeout(10000, () => {
         req.destroy();
         resolve({ success: false, error: 'Request timed out', url: targetUrl });
       });

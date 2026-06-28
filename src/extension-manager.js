@@ -4,12 +4,41 @@ export class ExtensionManager {
     this.pasteHandlers = [];
     this.renderers = new Map();
     this.postRenderers = [];
+    this.extensions = []; // Tracks registered extension names
   }
 
   register(extension) {
-    if (extension && typeof extension.onInit === 'function') {
+    if (!extension) return;
+    const name = extension.name || 'Unnamed Extension';
+    if (!this.extensions.includes(name)) {
+      this.extensions.push(name);
+    }
+
+    let enabled = true;
+    try {
+      const saved = localStorage.getItem(`mdway-ext-${name}`);
+      if (saved !== null) {
+        enabled = JSON.parse(saved);
+      }
+    } catch (e) {}
+
+    if (enabled && typeof extension.onInit === 'function') {
       extension.onInit(this);
     }
+  }
+
+  isExtensionEnabled(name) {
+    try {
+      const saved = localStorage.getItem(`mdway-ext-${name}`);
+      if (saved !== null) return JSON.parse(saved);
+    } catch (e) {}
+    return true; // Default to enabled
+  }
+
+  setExtensionEnabled(name, enabled) {
+    try {
+      localStorage.setItem(`mdway-ext-${name}`, JSON.stringify(enabled));
+    } catch (e) {}
   }
 
   registerLanguage(lang) {

@@ -1,14 +1,94 @@
 /* index.css - MDway Premium Stylesheet */
 
 :root {
-  --bg: #0b0b0e;
-  --surf: #131317;
-  --surf2: #1a1a21;
-  --border: #22222c;
-  --accent: #8b5cf6;
-  --accent-glow: rgba(139, 92, 246, 0.25);
-  --text: #e2e0ee;
-  --muted: #64617a;
+  --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* Default Theme: Nightmode Blue Jays */
+body, body.theme-blue-jays {
+  --bg: #060814;
+  --surf: #0d1127;
+  --surf2: #141a3c;
+  --card-bg: rgba(13, 17, 39, 0.85);
+  --border: #1e2654;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  --text: #f1f5f9;
+  --muted: #64748b;
+  --grid-dot: #1e293b;
+  --code-bg: var(--surf2);
+  --text-strong: #ffffff;
+  --text-em: #38bdf8;
+  --checker-bg: #090c1b;
+  --checker-dot: #141a3c;
+}
+
+/* High-Contrast Purple Theme */
+body.theme-dark-purple {
+  --bg: #080511;
+  --surf: #120d24;
+  --surf2: #1b1336;
+  --card-bg: rgba(18, 13, 36, 0.85);
+  --border: #2a1d54;
+  --accent: #c084fc;
+  --accent-glow: rgba(192, 132, 252, 0.25);
+  --text: #f5f3ff;
+  --muted: #7c72a5;
+  --grid-dot: #2a1b4d;
+  --code-bg: var(--surf2);
+  --text-strong: #ffffff;
+  --text-em: #c084fc;
+  --checker-bg: #0d091a;
+  --checker-dot: #1b1336;
+}
+
+/* Soft Pastel Theme (Light Mode) */
+body.theme-pastel {
+  --bg: #f4f4f7;
+  --surf: #ffffff;
+  --surf2: #faf9fc;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --border: #e4e2eb;
+  --accent: #ec4899;
+  --accent-glow: rgba(236, 72, 153, 0.15);
+  --text: #2c2738;
+  --muted: #787382;
+  --grid-dot: #cfcbdb;
+  --code-bg: #1a1a24;
+  --text-strong: #000000;
+  --text-em: #db2777;
+  --checker-bg: #ffffff;
+  --checker-dot: #f4f4f5;
+}
+
+/* Minimalist Black & White Theme (Light Mode) */
+body.theme-mono {
+  --bg: #ffffff;
+  --surf: #ffffff;
+  --surf2: #f4f4f5;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --border: #d4d4d8;
+  --accent: #000000;
+  --accent-glow: rgba(0, 0, 0, 0.15);
+  --text: #09090b;
+  --muted: #71717a;
+  --grid-dot: #e4e4e7;
+  --code-bg: #18181b;
+  --text-strong: #000000;
+  --text-em: #000000;
+  --checker-bg: #ffffff;
+  --checker-dot: #e4e4e7;
+}
+
+/* Font Style Overrides */
+body.font-sans {
+  --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+body.font-mono {
+  --font-main: 'Cascadia Code', 'Consolas', 'Fira Code', 'JetBrains Mono', monospace;
+}
+body.font-serif {
+  --font-main: 'Georgia', 'Times New Roman', serif;
 }
 
 * {
@@ -21,12 +101,17 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: var(--bg);
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-main);
   color: var(--text);
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ── Titlebar ── */
@@ -128,7 +213,7 @@ html, body {
   bottom: 0;
   overflow: hidden;
   cursor: default;
-  background-image: radial-gradient(circle, #222230 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
   background-size: 26px 26px;
 }
 
@@ -167,7 +252,7 @@ html, body {
 .card {
   position: absolute;
   width: 400px;
-  background: rgba(19, 19, 23, 0.9);
+  background: var(--card-bg);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -182,8 +267,8 @@ html, body {
   backface-visibility: hidden;
 }
 
-.card:hover {
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--accent);
+.card:hover, .card:focus-within {
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--accent);
   border-color: var(--accent);
 }
 
@@ -334,11 +419,13 @@ html, body {
 
 .mdv a {
   color: var(--accent);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .mdv a:hover {
   text-decoration: underline;
+  filter: brightness(1.2);
 }
 
 .mdv code {
@@ -352,7 +439,7 @@ html, body {
 }
 
 .mdv pre {
-  background: var(--surf2) !important;
+  background: var(--code-bg) !important;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px 12px;
@@ -422,11 +509,11 @@ html, body {
 }
 
 .mdv strong {
-  color: #fff;
+  color: var(--text-strong);
 }
 
 .mdv em {
-  color: #c084fc;
+  color: var(--text-em);
 }
 
 .mermaid-wrap {
@@ -525,6 +612,8 @@ html, body {
 
 .sbox-body {
   padding: 18px;
+  max-height: 65vh;
+  overflow-y: auto;
 }
 
 .sbox-section {
@@ -628,4 +717,353 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
+}
+
+/* ── Titlebar Logo ── */
+#app-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  height: 100%;
+}
+#app-logo {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  image-rendering: auto;
+  transition: opacity 0.25s ease;
+}
+
+/* ── Link Loading Spinner ── */
+@keyframes mdway-spin {
+  to { transform: rotate(360deg); }
+}
+.link-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 12px;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.4;
+}
+.link-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: mdway-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+.link-loading-url {
+  color: var(--muted);
+  font-size: 9px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Settings Checkbox List ── */
+.sbox-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.sbox-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+.sbox-checkbox-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surf2);
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sbox-checkbox-row input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.sbox-checkbox-row input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* ── Card Types Guide ── */
+.card-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+.card-type-item {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card-type-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-type-name {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text);
+}
+.card-type-badge {
+  font-size: 9px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.card-type-desc {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ── SVG Graphics Extension Style ── */
+.svg-card-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  flex: 1;
+  background-image: linear-gradient(45deg, var(--checker-dot) 25%, transparent 25%), 
+                    linear-gradient(-45deg, var(--checker-dot) 25%, transparent 25%), 
+                    linear-gradient(45deg, transparent 75%, var(--checker-dot) 75%), 
+                    linear-gradient(-45deg, transparent 75%, var(--checker-dot) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  background-color: var(--checker-bg);
+  min-height: 200px;
+  border-radius: 0 0 9px 9px;
+  overflow: hidden;
+  transition: background-color 0.25s ease;
+}
+.svg-card-wrap svg {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+}
+
+/* ── Color Swatch Extension Style ── */
+.color-card-bd {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+.color-swatch {
+  flex: 1;
+  min-height: 110px;
+  border-radius: 0 0 0 0;
+  transition: background 0.15s ease;
+}
+.color-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surf);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 9px 9px;
+}
+.color-value {
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.color-picker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  overflow: hidden;
+}
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+/* ── Titlebar Button Groups ── */
+.tgroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+  padding: 0 4px;
+}
+.tgroup::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin-left: 8px;
+  margin-right: 4px;
+}
+.tgroup:last-of-type::after {
+  display: none;
+}
+
+/* ── Settings Danger Button ── */
+.sbox-btn.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+.sbox-btn.danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* ── Chainsaw Deletion Mode ── */
+body.chainsaw-active #viewport {
+  cursor: crosshair !important;
+}
+body.chainsaw-active .card:hover {
+  box-shadow: 0 15px 45px rgba(220, 38, 38, 0.4), 0 0 0 3px #dc2626 !important;
+  border-color: #dc2626 !important;
+  cursor: pointer !important;
+}
+body.chainsaw-active .card:hover * {
+  pointer-events: none !important;
+}
+
+/* ── Color Palette Extension Style ── */
+.palette-card-bd {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+  background: var(--surf);
+  border-radius: 0 0 9px 9px;
+  overflow-y: auto;
+}
+.palette-grid {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  gap: 8px;
+}
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+}
+.palette-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.palette-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+}
+.palette-color-val {
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  color: var(--text);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.palette-picker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.palette-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.palette-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+/* ── Chainsaw Warning Modal ── */
+#chainsaw-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#chainsaw-overlay.open {
+  display: flex;
+}
+#chainsaw-box {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0;
+  width: 320px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
 }
