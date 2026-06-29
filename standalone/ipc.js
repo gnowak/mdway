@@ -45,5 +45,8 @@ export const ipc = {
   },
   openExternal: async (url) => {
     return await window.api.openExternal(url);
+  },
+  queryScryfall: async (url, body) => {
+    return await window.api.queryScryfall(url, body);
   }
 };

@@ -112,6 +112,44 @@ ipcMain.handle('open-external', (_, url) => {
   shell.openExternal(url);
 });
 
+// --- Proxy Scryfall requests to bypass CORS ---
+ipcMain.handle('scryfall-post', async (_, { url, body }) => {
+  return new Promise((resolve) => {
+    const payload = JSON.stringify(body);
+    const parsedUrl = new URL(url);
+    const client = parsedUrl.protocol === 'https:' ? https : http;
+
+    const req = client.request({
+      hostname: parsedUrl.hostname,
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload),
+        'User-Agent': 'MDway/1.0 (contact@mdway.app) Scryfall-Integration/1.0'
+      }
+    }, (res) => {
+      let data = '';
+      res.setEncoding('utf-8');
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve({ success: true, data: JSON.parse(data) });
+        } catch (e) {
+          resolve({ success: false, error: 'JSON parse error: ' + data });
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      resolve({ success: false, error: err.message });
+    });
+
+    req.write(payload);
+    req.end();
+  });
+});
+
 // --- File launch handlers ---
 ipcMain.handle('get-launch-file', () => {
   const res = launchFileContent;

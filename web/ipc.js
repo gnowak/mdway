@@ -205,5 +205,17 @@ export const ipc = {
   openExternal: async (url) => {
     window.open(url, '_blank');
     return true;
+  },
+  queryScryfall: async (url, body) => {
+    // browser fetch: omit User-Agent header entirely to pass CORS preflight checks!
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await response.json();
+    return { success: true, data };
   }
 };

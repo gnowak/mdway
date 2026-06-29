@@ -104,18 +104,9 @@ async function fetchMtgDeckFromScryfall(cardsToFetch) {
     const identifiers = chunk.map(c => ({ name: c.name }));
 
     try {
-      const response = await fetch('https://api.scryfall.com/cards/collection', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'MDway/1.0 (contact@mdway.app) Scryfall-Integration/1.0'
-        },
-        body: JSON.stringify({ identifiers })
-      });
-      
-      const responseData = await response.json();
-      if (responseData && responseData.data) {
-        responseData.data.forEach(cardData => {
+      const res = await ipc.queryScryfall('https://api.scryfall.com/cards/collection', { identifiers });
+      if (res && res.success && res.data && res.data.data) {
+        res.data.data.forEach(cardData => {
           const orig = chunk.find(c => {
             const cardNameLower = cardData.name.toLowerCase();
             const queryLower = c.name.toLowerCase();

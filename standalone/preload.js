@@ -129,5 +129,8 @@ contextBridge.exposeInMainWorld('api', {
   openFolder: (folderPath) => ipcRenderer.invoke('open-folder', folderPath),
 
   // Open a URL in the OS default web browser
-  openExternal: (url) => ipcRenderer.invoke('open-external', url)
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
+  // Scryfall collection fetch proxy
+  queryScryfall: (url, body) => ipcRenderer.invoke('scryfall-post', { url, body })
 });

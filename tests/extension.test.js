@@ -5,7 +5,16 @@ vi.mock('ipc', () => ({
   ipc: {
     escapeHtml: vi.fn(s => s),
     renderCardBody: vi.fn(s => s),
-    detectLanguage: vi.fn(() => 'markdown')
+    detectLanguage: vi.fn(() => 'markdown'),
+    queryScryfall: vi.fn(async () => ({
+      success: true,
+      data: {
+        data: [
+          { name: 'Black Lotus', type_line: 'Artifact', prices: { usd: '25000.00' }, mana_cost: '{0}', oracle_text: 'T, Sacrifice: Add 3 mana.' },
+          { name: 'Ancestral Recall', type_line: 'Instant', prices: { usd: '5000.00' }, mana_cost: '{U}', oracle_text: 'Target player draws 3 cards.' }
+        ]
+      }
+    }))
   }
 }));
 
