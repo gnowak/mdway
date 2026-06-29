@@ -79,6 +79,13 @@ export function createNewCard(text, x, y, opts = {}) {
   const card = { id, text, x, y, w, h, lang, showMd, deckData, showWebview };
   if (opts.id === undefined) {
     cards.push(card);
+  } else {
+    const idx = cards.findIndex(c => c.id === opts.id);
+    if (idx !== -1) {
+      cards[idx] = card;
+    } else {
+      cards.push(card);
+    }
   }
 
   makeCardDOM(card);
