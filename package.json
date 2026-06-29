@@ -18,7 +18,9 @@
     "dist": "electron-builder",
     "dist:installer": "electron-builder --config.win.target=nsis",
     "dist:portable": "electron-builder --config.win.target=portable",
-    "dist:zip": "electron-builder --config.win.target=zip"
+    "dist:zip": "electron-builder --config.win.target=zip",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
     "highlight.js": "^11.9.0",
@@ -29,7 +31,8 @@
     "electron": "^30.5.1",
     "electron-builder": "^26.15.3",
     "jsdom": "^29.1.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "wrangler": "^4.105.0"
   },
   "build": {
     "appId": "com.mdway.app",
