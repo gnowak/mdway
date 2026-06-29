@@ -80,6 +80,25 @@ body.theme-mono {
   --checker-dot: #e4e4e7;
 }
 
+/* Jammy Theme (Gag Teal on Teal, usable but very low contrast) */
+body.theme-jammy {
+  --bg: #004040;
+  --surf: #005050;
+  --surf2: #003838;
+  --card-bg: rgba(0, 70, 70, 0.95);
+  --border: #00a8a8;
+  --accent: #00ffff;
+  --accent-glow: rgba(0, 255, 255, 0.3);
+  --text: #006e6e;
+  --muted: #005656;
+  --grid-dot: #005656;
+  --code-bg: #002d2d;
+  --text-strong: #009999;
+  --text-em: #00b2b2;
+  --checker-bg: #004040;
+  --checker-dot: #004a4a;
+}
+
 /* Font Style Overrides */
 body.font-sans {
   --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
